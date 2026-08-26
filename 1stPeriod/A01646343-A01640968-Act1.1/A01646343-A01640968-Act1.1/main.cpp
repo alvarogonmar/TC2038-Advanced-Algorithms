@@ -10,36 +10,43 @@ using namespace std;
 // Parametros: list es el vector a ordenar; left, mid y right delimitan las secciones.
 // Retorno: no regresa valor, modifica el vector recibido.
 // Complejidad: O(n), donde n es la cantidad de elementos entre left y right.
-void merge(vector<double> &list, int left, int mid, int right) {
+void merge(vector<double> &list, int left, int mid, int right)
+{
 
 	vector<double> temp(right - left + 1);
 
 	int i = left;
 	int j = mid + 1;
 	int k = 0;
-	while (i <= mid && j <= right) {
-		if (list[i] > list[j]) {
+	while (i <= mid && j <= right)
+	{
+		if (list[i] > list[j])
+		{
 			temp[k] = list[i];
 			k++;
 			i++;
 		}
-		else {
+		else
+		{
 			temp[k] = list[j];
 			k++;
 			j++;
 		}
 	}
-	while (i <= mid) {
+	while (i <= mid)
+	{
 		temp[k] = list[i];
 		k++;
 		i++;
 	}
-	while (j <= right) {
+	while (j <= right)
+	{
 		temp[k] = list[j];
 		k++;
 		j++;
 	}
-	for (int x = 0; x < temp.size(); x++) {
+	for (int x = 0; x < temp.size(); x++)
+	{
 		list[left + x] = temp[x];
 	}
 }
@@ -48,8 +55,10 @@ void merge(vector<double> &list, int left, int mid, int right) {
 // Parametros: list es el vector a ordenar; left y right son los limites del segmento.
 // Retorno: no regresa valor, modifica el vector recibido.
 // Complejidad: O(n log n), donde n es la cantidad de elementos entre left y right.
-void mergeSort(vector<double> &list, int left, int right) {
-	if (left >= right) {
+void mergeSort(vector<double> &list, int left, int right)
+{
+	if (left >= right)
+	{
 		return;
 	}
 
@@ -64,15 +73,18 @@ void mergeSort(vector<double> &list, int left, int right) {
 // Parametros: no recibe parametros.
 // Retorno: regresa 0 si el programa termina correctamente.
 // Complejidad: O(n log n), por la llamada a mergeSort.
-int main() {
+int main()
+{
 	int n;
 	cin >> n;
 	vector<double> list(n);
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
+	{
 		cin >> list[i];
 	}
 	mergeSort(list, 0, n - 1);
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
+	{
 		cout << list[i] << endl;
 	}
 	return 0;

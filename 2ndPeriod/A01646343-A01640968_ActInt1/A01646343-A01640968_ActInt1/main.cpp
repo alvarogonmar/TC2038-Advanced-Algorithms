@@ -9,7 +9,7 @@ using namespace std;
 
 // Lee todo el contenido de un archivo.
 // Regresa true si pudo abrirlo y false si no pudo.
-bool leerArchivo(string nombreArchivo, string &contenido) {
+bool leerArchivo(const string &nombreArchivo, string &contenido) {
 
     ifstream archivo(nombreArchivo);
 
@@ -35,7 +35,7 @@ bool leerArchivo(string nombreArchivo, string &contenido) {
 
 
 // Construye el arreglo LPS que utiliza KMP
-vector<size_t> construirLPS(string mcode) {
+vector<size_t> construirLPS(const string &mcode) {
 
     vector<size_t> lps(mcode.length(), 0);
 
@@ -67,7 +67,7 @@ vector<size_t> construirLPS(string mcode) {
 
 // Busca el mcode dentro de una transmission utilizando KMP
 // Regresa el indice donde comienza o string::npos si no lo encuentra
-size_t buscarKMP(string transmission, string mcode) {
+size_t buscarKMP(const string &transmission, const string &mcode) {
 
     vector<size_t> lps = construirLPS(mcode);
 
@@ -100,7 +100,7 @@ size_t buscarKMP(string transmission, string mcode) {
 
 
 // Imprime si el mcode fue encontrado y su posicion
-void verificarMcode(string transmission, string mcode) {
+void verificarMcode(const string &transmission, const string &mcode) {
 
     size_t posicion = buscarKMP(transmission, mcode);
 
@@ -112,7 +112,7 @@ void verificarMcode(string transmission, string mcode) {
     }
 }
 
-tuple<int,int> palindromo(string contenido){
+tuple<int,int> palindromo(const string &contenido){
     string transformado = "#";
 
     for (char c : contenido){
@@ -166,7 +166,7 @@ tuple<int,int> palindromo(string contenido){
 }
 
 // Parte 3: encuentra el substring comun mas largo entre las dos transmisiones
-tuple<int,int> LCS(string a1, string a2) {
+tuple<int,int> LCS(const string &a1, const string &a2) {
 
     int filas = a1.size() + 1;
     int columnas = a2.size() + 1;

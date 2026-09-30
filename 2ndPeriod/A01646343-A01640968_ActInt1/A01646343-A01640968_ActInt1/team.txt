@@ -1,6 +1,6 @@
 Partes desarrolladas por el equipo:
 
-Álvaro González:
+Álvaro González: A01646343
 Función leerArchivo: Implementación de la lectura de los archivos de transmisión y códigos maliciosos, almacenando su contenido en strings para poder procesarlos.
 
 Función construirLPS: Implementación de la construcción del arreglo LPS utilizado por el algoritmo KMP para evitar comparaciones repetidas durante la búsqueda.
@@ -9,7 +9,7 @@ Función buscarKMP: Implementación del algoritmo KMP para buscar cada código m
 
 Función verificarMcode: Implementación de la verificación y salida de resultados de KMP, indicando si el código malicioso fue encontrado y su posición inicial.
 
-Valeria Hernández:
+Valeria Hernández A01640968:
 Función palindromo: Implementación del algoritmo de Manacher para encontrar el palíndromo más largo dentro de cada transmisión y obtener sus posiciones de inicio y fin.
 
 Función LCS: Implementación de programación dinámica para encontrar el substring común más largo entre ambas transmisiones y obtener sus posiciones de inicio y fin.

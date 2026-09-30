@@ -1,265 +1,250 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <tuple>
+// Programa que busca codigos maliciosos, palindromos y coincidencias en transmisiones.
+// Alvaro Gonzalez Martinez A01646343 | Valeria Fernanda Hernandez Avilan A01640968
+// Jueves 1 de Octubre 2026
+
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <tuple>
+#include <vector>
 
 using namespace std;
 
-// Lee todo el contenido de un archivo.
-// Regresa true si pudo abrirlo y false si no pudo.
+// Lee todo el contenido de un archivo de texto.
+// Parametros: nombreArchivo indica el archivo a leer y contenido guarda sus caracteres.
+// Retorno: true si el archivo se pudo leer y contiene datos; false en caso contrario.
+// Complejidad: O(n), donde n es la cantidad de caracteres del archivo.
 bool leerArchivo(const string &nombreArchivo, string &contenido) {
+	ifstream archivo(nombreArchivo);
 
-    ifstream archivo(nombreArchivo);
+	if (!archivo.is_open()) {
+		cerr << "No se pudo abrir el archivo: " << nombreArchivo << endl;
+		return false;
+	}
 
-    if (!archivo.is_open()) {
-        cerr << "No se pudo abrir el archivo: " << nombreArchivo << endl;
-        return false;
-    }
+	contenido = "";
+	char caracter = '\0';
 
-    contenido = "";
-    char caracter;
+	while (archivo.get(caracter)) {
+		contenido += caracter;
+	}
 
-    while (archivo.get(caracter)) {
-        contenido += caracter;
-    }
+	if (contenido.empty()) {
+		cerr << "El archivo esta vacio: " << nombreArchivo << endl;
+		return false;
+	}
 
-    if (contenido.empty()) {
-        cerr << "El archivo esta vacio: " << nombreArchivo << endl;
-        return false;
-    }
-
-    return true;
+	return true;
 }
 
+// Construye el arreglo de prefijos y sufijos utilizado por el algoritmo KMP.
+// Parametros: codigo contiene la secuencia cuyo arreglo LPS se construye.
+// Retorno: vector con la longitud del prefijo valido para cada posicion del codigo.
+// Complejidad: O(m), donde m es la longitud del codigo.
+vector<size_t> construirLps(const string &codigo) {
+	vector<size_t> lps(codigo.length(), 0);
+	size_t longitud = 0;
+	size_t indice = 1;
 
-// Construye el arreglo LPS que utiliza KMP
-vector<size_t> construirLPS(const string &mcode) {
+	while (indice < codigo.length()) {
+		if (codigo[indice] == codigo[longitud]) {
+			longitud++;
+			lps[indice] = longitud;
+			indice++;
+		} else {
+			if (longitud == 0) {
+				lps[indice] = 0;
+				indice++;
+			} else {
+				longitud = lps[longitud - 1];
+			}
+		}
+	}
 
-    vector<size_t> lps(mcode.length(), 0);
-
-    size_t longitud = 0;
-    size_t i = 1;
-
-    while (i < mcode.length()) {
-
-        if (mcode[i] == mcode[longitud]) {
-
-            longitud++;
-            lps[i] = longitud;
-            i++;
-
-        } else {
-
-            if (longitud == 0) {
-                lps[i] = 0;
-                i++;
-            } else {
-                longitud = lps[longitud - 1];
-            }
-        }
-    }
-
-    return lps;
+	return lps;
 }
 
+// Busca la primera aparicion de un codigo dentro de una transmision mediante KMP.
+// Parametros: transmision contiene los datos y codigo contiene la secuencia buscada.
+// Retorno: indice inicial del codigo o string::npos cuando no existe coincidencia.
+// Complejidad: O(n + m), donde n y m son las longitudes de la transmision y el codigo.
+size_t buscarKmp(const string &transmision, const string &codigo) {
+	vector<size_t> lps = construirLps(codigo);
+	size_t indiceTransmision = 0;
+	size_t indiceCodigo = 0;
 
-// Busca el mcode dentro de una transmission utilizando KMP
-// Regresa el indice donde comienza o string::npos si no lo encuentra
-size_t buscarKMP(const string &transmission, const string &mcode) {
+	while (indiceTransmision < transmision.length()) {
+		if (transmision[indiceTransmision] == codigo[indiceCodigo]) {
+			indiceTransmision++;
+			indiceCodigo++;
 
-    vector<size_t> lps = construirLPS(mcode);
+			if (indiceCodigo == codigo.length()) {
+				return indiceTransmision - codigo.length();
+			}
+		} else {
+			if (indiceCodigo > 0) {
+				indiceCodigo = lps[indiceCodigo - 1];
+			} else {
+				indiceTransmision++;
+			}
+		}
+	}
 
-    size_t i = 0;
-    size_t j = 0;
-
-    while (i < transmission.length()) {
-
-        if (transmission[i] == mcode[j]) {
-
-            i++;
-            j++;
-
-            if (j == mcode.length()) {
-                return i - mcode.length();
-            }
-
-        } else {
-
-            if (j > 0) {
-                j = lps[j - 1];
-            } else {
-                i++;
-            }
-        }
-    }
-
-    return string::npos;
+	return string::npos;
 }
 
+// Verifica si un codigo esta contenido en una transmision e imprime el resultado.
+// Parametros: transmision contiene los datos y codigo contiene la secuencia buscada.
+// Retorno: no regresa valor; imprime false o true seguido de la posicion inicial.
+// Complejidad: O(n + m), por la llamada al algoritmo KMP.
+void verificarCodigo(const string &transmision, const string &codigo) {
+	size_t posicion = buscarKmp(transmision, codigo);
 
-// Imprime si el mcode fue encontrado y su posicion
-void verificarMcode(const string &transmission, const string &mcode) {
-
-    size_t posicion = buscarKMP(transmission, mcode);
-
-    if (posicion == string::npos) {
-        cout << "false" << endl;
-    } else {
-        // +1 porque el problema pide posiciones comenzando desde 1
-        cout << "true " << posicion + 1 << endl;
-    }
+	if (posicion == string::npos) {
+		cout << "false" << endl;
+	} else {
+		cout << "true " << posicion + 1 << endl;
+	}
 }
 
-tuple<int,int> palindromo(const string &contenido){
-    string transformado = "#";
+// Encuentra el palindromo mas largo de un texto mediante el algoritmo de Manacher.
+// Parametros: contenido es el texto donde se busca el palindromo.
+// Retorno: posiciones inicial y final del palindromo, numeradas desde uno.
+// Complejidad: O(n), donde n es la longitud del contenido.
+tuple<int, int> encontrarPalindromo(const string &contenido) {
+	string transformado = "#";
 
-    for (char c : contenido){
-        transformado += c;
-        transformado += '#';
-    }
+	for (char caracter : contenido) {
+		transformado += caracter;
+		transformado += '#';
+	}
 
-    int n = transformado.size(); //tamaño de contenido
-    vector<int>P(n,0); //llenar de ceros
+	int longitudTransformada = transformado.size();
+	vector<int> radios(longitudTransformada, 0);
+	int centro = -1;
+	int limiteDerecho = -1;
+	int mejorLongitud = 0;
+	int mejorCentro = -1;
 
-    int C = -1; //centro cuando la derecha ya avanzó
-    int R = -1; //derecha mas avanzada
-    int best = 0; //mejor largo de palindromo
-    int indexBest = -1; //centro del mejor palindromo
+	for (int indice = 0; indice < longitudTransformada; indice++) {
+		if (indice < limiteDerecho) {
+			int espejo = 2 * centro - indice;
+			radios[indice] = min(radios[espejo], limiteDerecho - indice);
+		} else {
+			radios[indice] = 0;
+		}
 
-    for(int i = 0; i < n; i++){
-        if(i < R){ //cuando i si esta en el rango de R
-            int mirror = 2*C - i;
-            P[i] = min(P[mirror],R - i );
-        }
-        else{
-            P[i] = 0;
-        }
-        
-        while((i - P[i] - 1) >= 0 && (i + P[i] + 1) < n &&  transformado[i - P[i] - 1] == transformado[i + P[i] + 1]){
-            P[i] = P[i] + 1;
-        }
+		while (indice - radios[indice] - 1 >= 0 &&
+			   indice + radios[indice] + 1 < longitudTransformada &&
+			   transformado[indice - radios[indice] - 1] ==
+			   transformado[indice + radios[indice] + 1]) {
+			radios[indice]++;
+		}
 
-        if (best < P[i]){
-            best = P[i];
-            indexBest = i;
-        }
+		if (radios[indice] > mejorLongitud) {
+			mejorLongitud = radios[indice];
+			mejorCentro = indice;
+		}
 
-        if(R < i + P[i]){
-            R = i + P[i];
-            C = i;
-        }
-    }
+		if (indice + radios[indice] > limiteDerecho) {
+			limiteDerecho = indice + radios[indice];
+			centro = indice;
+		}
+	}
 
-    int inicioTransformado = indexBest - best;
-    if (transformado[inicioTransformado] == '#'){
-        inicioTransformado++;
-    }
+	int inicioTransformado = mejorCentro - mejorLongitud;
+	if (transformado[inicioTransformado] == '#') {
+		inicioTransformado++;
+	}
 
-    int finTransformado = indexBest + best;
-    if (transformado[finTransformado] == '#'){
-        finTransformado--;
-    }
+	int finTransformado = mejorCentro + mejorLongitud;
+	if (transformado[finTransformado] == '#') {
+		finTransformado--;
+	}
 
-    return make_tuple((inicioTransformado + 1) / 2, (finTransformado + 1) / 2);
+	int inicio = (inicioTransformado + 1) / 2;
+	int fin = (finTransformado + 1) / 2;
+	return make_tuple(inicio, fin);
 }
 
-// Parte 3: encuentra el substring comun mas largo entre las dos transmisiones
-tuple<int,int> LCS(const string &a1, const string &a2) {
+// Encuentra el substring comun mas largo entre dos transmisiones.
+// Parametros: primera y segunda contienen las transmisiones que se comparan.
+// Retorno: posiciones inicial y final del substring en la primera transmision.
+// Complejidad: O(nm), donde n y m son las longitudes de las transmisiones.
+tuple<int, int> encontrarSubstringComun(const string &primera, const string &segunda) {
+	int filas = primera.size() + 1;
+	int columnas = segunda.size() + 1;
+	int mejorLongitud = 0;
+	int mejorFinal = 0;
+	vector<vector<int>> tabla(filas, vector<int>(columnas, 0));
 
-    int filas = a1.size() + 1;
-    int columnas = a2.size() + 1;
+	for (int fila = 1; fila < filas; fila++) {
+		for (int columna = 1; columna < columnas; columna++) {
+			if (primera[fila - 1] == segunda[columna - 1]) {
+				tabla[fila][columna] = tabla[fila - 1][columna - 1] + 1;
 
-    int bestL = 0;
-    int bestI = 0;
+				if (tabla[fila][columna] > mejorLongitud) {
+					mejorLongitud = tabla[fila][columna];
+					mejorFinal = fila;
+				}
+			} else {
+				tabla[fila][columna] = 0;
+			}
+		}
+	}
 
-    vector<vector<int>> DP(
-        filas, vector<int>(columnas, 0)
-    );
-
-    DP[0][0] = 0;
-
-    for (int i = 1; i < filas; i++) {
-
-        for (int j = 1; j < columnas; j++) {
-
-            if (a1[i - 1] == a2[j - 1]) {
-
-                DP[i][j] = DP[i - 1][j - 1] + 1;
-
-                if (DP[i][j] > bestL) {
-                    bestL = DP[i][j];
-                    bestI = i;
-                }
-
-            } else {
-
-                DP[i][j] = 0;
-
-            }
-        }
-    }
-
-    int inicio = bestI - bestL + 1;
-
-    return make_tuple(inicio, bestI);
+	int inicio = mejorFinal - mejorLongitud + 1;
+	return make_tuple(inicio, mejorFinal);
 }
 
+// Lee los archivos, ejecuta los tres analisis solicitados e imprime sus resultados.
+// Parametros: no recibe parametros.
+// Retorno: 0 si termina correctamente y 1 si algun archivo no se puede leer.
+// Complejidad: O(nm), por la busqueda del substring comun mas largo.
 int main() {
+	string transmision1 = "";
+	string transmision2 = "";
+	string codigo1 = "";
+	string codigo2 = "";
+	string codigo3 = "";
+	bool archivosCorrectos = true;
 
-    string transmission1;
-    string transmission2;
-    string mcode1;
-    string mcode2;
-    string mcode3;
+	if (!leerArchivo("transmission1.txt", transmision1)) {
+		archivosCorrectos = false;
+	}
+	if (!leerArchivo("transmission2.txt", transmision2)) {
+		archivosCorrectos = false;
+	}
+	if (!leerArchivo("mcode1.txt", codigo1)) {
+		archivosCorrectos = false;
+	}
+	if (!leerArchivo("mcode2.txt", codigo2)) {
+		archivosCorrectos = false;
+	}
+	if (!leerArchivo("mcode3.txt", codigo3)) {
+		archivosCorrectos = false;
+	}
 
-    bool archivosCorrectos = true;
+	if (!archivosCorrectos) {
+		return 1;
+	}
 
-    // Leer las dos transmisiones
-    if (!leerArchivo("transmission1.txt", transmission1)) {
-        archivosCorrectos = false;
-    }
-    if (!leerArchivo("transmission2.txt", transmission2)) {
-        archivosCorrectos = false;
-    }
+	verificarCodigo(transmision1, codigo1);
+	verificarCodigo(transmision1, codigo2);
+	verificarCodigo(transmision1, codigo3);
+	verificarCodigo(transmision2, codigo1);
+	verificarCodigo(transmision2, codigo2);
+	verificarCodigo(transmision2, codigo3);
 
-    // Leer los tres codigos maliciosos
-    if (!leerArchivo("mcode1.txt", mcode1)) {
-        archivosCorrectos = false;
-    }
-    if (!leerArchivo("mcode2.txt", mcode2)) {
-        archivosCorrectos = false;
-    }
-    if (!leerArchivo("mcode3.txt", mcode3)) {
-        archivosCorrectos = false;
-    }
+	tuple<int, int> resultadoPalindromo1 = encontrarPalindromo(transmision1);
+	tuple<int, int> resultadoPalindromo2 = encontrarPalindromo(transmision2);
 
-    // Terminar el programa si falto algun archivo
-    if (!archivosCorrectos) {
-        return 1;
-    }
+	cout << get<0>(resultadoPalindromo1) << " " << get<1>(resultadoPalindromo1) << endl;
+	cout << get<0>(resultadoPalindromo2) << " " << get<1>(resultadoPalindromo2) << endl;
 
-    // Parte 1: buscar cada mcode en cada transmission
-    verificarMcode(transmission1, mcode1);
-    verificarMcode(transmission1, mcode2);
-    verificarMcode(transmission1, mcode3);
+	tuple<int, int> resultadoComun = encontrarSubstringComun(transmision1, transmision2);
+	cout << get<0>(resultadoComun) << " " << get<1>(resultadoComun) << endl;
 
-    verificarMcode(transmission2, mcode1);
-    verificarMcode(transmission2, mcode2);
-    verificarMcode(transmission2, mcode3);
-
-    // Parte 2: palindromo mas largo de cada transmission
-    tuple<int, int> resultado1 = palindromo(transmission1);
-    tuple<int, int> resultado2 = palindromo(transmission2);
-
-    cout << get<0>(resultado1) << " " << get<1>(resultado1) << endl;
-    cout << get<0>(resultado2) << " " << get<1>(resultado2) << endl;
-
-    // Parte 3: substring comun mas largo entre las dos transmisiones
-    tuple<int, int> resultado3 = LCS(transmission1, transmission2);
-
-    cout << get<0>(resultado3) << " " << get<1>(resultado3) << endl;
-
-    return 0;
+	return 0;
 }

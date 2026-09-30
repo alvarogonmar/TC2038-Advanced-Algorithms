@@ -7,24 +7,30 @@
 
 using namespace std;
 
-// Lee todo el contenido de un archivo y lo regresa como string
-string leerArchivo(string nombreArchivo) {
+// Lee todo el contenido de un archivo.
+// Regresa true si pudo abrirlo y false si no pudo.
+bool leerArchivo(string nombreArchivo, string &contenido) {
 
     ifstream archivo(nombreArchivo);
 
     if (!archivo.is_open()) {
-        cout << "No se pudo abrir el archivo: " << nombreArchivo << endl;
-        return "";
+        cerr << "No se pudo abrir el archivo: " << nombreArchivo << endl;
+        return false;
     }
 
-    string contenido = "";
+    contenido = "";
     char caracter;
 
     while (archivo.get(caracter)) {
         contenido += caracter;
     }
 
-    return contenido;
+    if (contenido.empty()) {
+        cerr << "El archivo esta vacio: " << nombreArchivo << endl;
+        return false;
+    }
+
+    return true;
 }
 
 
@@ -202,14 +208,37 @@ tuple<int,int> LCS(string a1, string a2) {
 
 int main() {
 
+    string transmission1;
+    string transmission2;
+    string mcode1;
+    string mcode2;
+    string mcode3;
+
+    bool archivosCorrectos = true;
+
     // Leer las dos transmisiones
-    string transmission1 = leerArchivo("transmission1.txt");
-    string transmission2 = leerArchivo("transmission2.txt");
+    if (!leerArchivo("transmission1.txt", transmission1)) {
+        archivosCorrectos = false;
+    }
+    if (!leerArchivo("transmission2.txt", transmission2)) {
+        archivosCorrectos = false;
+    }
 
     // Leer los tres codigos maliciosos
-    string mcode1 = leerArchivo("mcode1.txt");
-    string mcode2 = leerArchivo("mcode2.txt");
-    string mcode3 = leerArchivo("mcode3.txt");
+    if (!leerArchivo("mcode1.txt", mcode1)) {
+        archivosCorrectos = false;
+    }
+    if (!leerArchivo("mcode2.txt", mcode2)) {
+        archivosCorrectos = false;
+    }
+    if (!leerArchivo("mcode3.txt", mcode3)) {
+        archivosCorrectos = false;
+    }
+
+    // Terminar el programa si falto algun archivo
+    if (!archivosCorrectos) {
+        return 1;
+    }
 
     // Parte 1: buscar cada mcode en cada transmission
     verificarMcode(transmission1, mcode1);

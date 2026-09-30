@@ -35,12 +35,12 @@ bool leerArchivo(string nombreArchivo, string &contenido) {
 
 
 // Construye el arreglo LPS que utiliza KMP
-vector<int> construirLPS(string mcode) {
+vector<size_t> construirLPS(string mcode) {
 
-    vector<int> lps(mcode.length(), 0);
+    vector<size_t> lps(mcode.length(), 0);
 
-    int longitud = 0;
-    int i = 1;
+    size_t longitud = 0;
+    size_t i = 1;
 
     while (i < mcode.length()) {
 
@@ -66,13 +66,13 @@ vector<int> construirLPS(string mcode) {
 
 
 // Busca el mcode dentro de una transmission utilizando KMP
-// Regresa el indice donde comienza o -1 si no lo encuentra
-int buscarKMP(string transmission, string mcode) {
+// Regresa el indice donde comienza o string::npos si no lo encuentra
+size_t buscarKMP(string transmission, string mcode) {
 
-    vector<int> lps = construirLPS(mcode);
+    vector<size_t> lps = construirLPS(mcode);
 
-    int i = 0;
-    int j = 0;
+    size_t i = 0;
+    size_t j = 0;
 
     while (i < transmission.length()) {
 
@@ -95,16 +95,16 @@ int buscarKMP(string transmission, string mcode) {
         }
     }
 
-    return -1;
+    return string::npos;
 }
 
 
 // Imprime si el mcode fue encontrado y su posicion
 void verificarMcode(string transmission, string mcode) {
 
-    int posicion = buscarKMP(transmission, mcode);
+    size_t posicion = buscarKMP(transmission, mcode);
 
-    if (posicion == -1) {
+    if (posicion == string::npos) {
         cout << "false" << endl;
     } else {
         // +1 porque el problema pide posiciones comenzando desde 1

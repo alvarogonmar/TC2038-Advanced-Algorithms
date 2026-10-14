@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 // Valor reservado para indicar que no se conoce un camino.
@@ -57,6 +58,43 @@ vector<int> dijkstra(const vector<vector<int>>& grafo, int s) {
     return dist;
 }
 
+void Floyd(int nodos, vector<vector<int>> matrix){
+    vector<vector<int>>dist(nodos, vector<int>(nodos)); //matriz de distancias
+    const int INF = 2147483647; //numero más grande que acepta un int
+
+    //crear matriz cambiando -1 por infinitos
+    for(int i = 0; i < nodos; i++){
+        for(int j = 0; j < nodos; j ++){
+            if (matrix[i][j] == -1){
+                dist[i][j] = INF;
+            }
+            else{
+                dist[i][j] = matrix[i][j];
+            }
+        }
+    }
+
+    //recalcular pasos para llegar nodo final, pasando por k como intermedio
+    for(int k = 0; k < nodos; k ++){
+        for(int i = 0; i < nodos; i ++){
+            for(int j = 0; j < nodos; j ++){
+                if (dist[i][k] != INF && dist[k][j] != INF) { //evitar error por suma de infinitos
+                    dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+                }
+            }
+        }
+    }
+
+    //imprimir matriz
+    for(int i = 0; i < nodos; i++){
+        for(int j = 0; j < nodos; j ++){
+            cout<<dist[i][j]<<" ";
+        }
+        cout<<"\n";
+    }
+}
+
+
 int main() {
     int n;
     cin >> n;
@@ -82,6 +120,9 @@ int main() {
             }
         }
     }
+
+    cout << "\nFloyd :\n";
+    Floyd(n, grafo);
 
     return 0;
 }
